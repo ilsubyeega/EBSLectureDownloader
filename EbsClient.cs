@@ -29,22 +29,27 @@ namespace EBSLectureDownloader
 		}
 		private double byteToMegaByte(long bytes)
 			=> Math.Round((double)(bytes / 1000 / 1000), 2);
-		private string Combine(string folder, string name, string url)
-			=>	Path.Combine(folder, name + Path.GetExtension(url));
+		private string Combine(string folder, string foldername, string name, string url, bool addfolder = true)
+			=> addfolder ? Path.Combine(folder, foldername, name + Path.GetExtension(url)) : Path.Combine(folder, name + Path.GetExtension(url));
 		/// <summary>
 		/// DownReservFile에서 파일들을 다운로드합니다.
 		/// </summary>
 		/// <param name="file">요청될 파일 오브젝트</param>
 		/// <param name="folder">폴더 저장 위치</param>
 		/// <param name="subtitles">자막 사용 여부</param>
+		/// <param name="addfolder">폴더 사용 여부</param>
 		/// <returns></returns>
-		public async Task DownloadFromReservFile(DownReservFile file, string folder, bool subtitles)
+		public async Task DownloadFromReservFile(DownReservFile file, string folder, bool subtitles, bool addfolder = true)
 		{
 			if (file == null || folder == null) throw new ArgumentNullException("파일이나 폴더가 null입니다.");
 			using (var client = new WebClient())
 			{
+				var combined = Path.Combine(folder, file.Folder);
+				if (addfolder && !Directory.Exists(combined))
+					Directory.CreateDirectory(combined);
+
 				// Download Subtitle
-				await client.DownloadFileTaskAsync(new Uri(file.CaptionUrl), Combine(folder, file.Name, file.CaptionUrl));
+				await client.DownloadFileTaskAsync(new Uri(file.CaptionUrl), Combine(folder, file.Folder, file.Name, file.CaptionUrl, addfolder));
 
 				client.DownloadProgressChanged += (sender, arg) =>
 				{
@@ -52,7 +57,7 @@ namespace EBSLectureDownloader
 				};
 
 				// Download File
-				await client.DownloadFileTaskAsync(new Uri(file.FileUrl), Combine(folder, file.Name, file.FileUrl));
+				await client.DownloadFileTaskAsync(new Uri(file.FileUrl), Combine(folder, file.Folder, file.Name, file.FileUrl));
 			}
 		}
 	}

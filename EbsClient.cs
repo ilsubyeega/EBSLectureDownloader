@@ -11,7 +11,7 @@ namespace EBSLectureDownloader
 {
 	public class EbsClient
 	{
-		private string downReservXmlUrl = @"http://www.ebsi.co.kr/ebs/lms/downLoad/DownReservXmlNew.ebs?grpId=";
+		private string downReservXmlUrl = @"https://www.ebsi.co.kr/ebs/lms/downLoad/DownReservXmlNew.ebs?grpId=";
 		/// <summary>
 		/// ebs/lms/downLoad/DownReservXmlNew.ebs 에 호출해서 DownReservXml를 받아옵니다.
 		/// </summary>
@@ -19,9 +19,13 @@ namespace EBSLectureDownloader
 		/// <returns></returns>
 		public DownReservXml GetDownReservXml(int groupId)
 		{
+			string url = downReservXmlUrl + groupId;
+			Console.WriteLine($"{url}로 요청중..");
 			using (var client = new WebClient())
 			{
-				var req = client.DownloadString(downReservXmlUrl + groupId);
+				client.Headers.Add("user-agent", "Mozilla/4.0 (compatible; MSIE 6.0; " +
+								  "Windows NT 5.2; .NET CLR 1.0.3705;)");
+				var req = client.DownloadString(url);
 				var serializer = new XmlSerializer(typeof(DownReservXml));
 				using (var reader = new StringReader(req))
 					return (DownReservXml)serializer.Deserialize(reader);

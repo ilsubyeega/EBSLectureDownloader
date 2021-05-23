@@ -32,18 +32,28 @@ namespace EBSLectureDownloader
 			{
 				throw new ArgumentException("요청된 주소가 올바르지 않거나 없습니다.");
 			}
-			// now parse parameters
-			var queries = HttpUtility.ParseQueryString(uri.Query);
+			try
+			{
+				// now parse parameters
+				var queries = HttpUtility.ParseQueryString(uri.Query);
 
-			var groupid = int.Parse(queries["groupID"]);
-			var client = new EbsClient();
-			var xml = client.GetDownReservXml(groupid);
-			var tasks = new List<Task>();
-			foreach (var single in xml.Files)
-				tasks.Add(client.DownloadFromReservFile(single, folder, true));
-			Console.WriteLine("다운로드를 시작합니다.");
-			Task.WaitAll(tasks.ToArray());
-			Console.WriteLine("다운로드가 종료되었습니다.");
+				var groupid = int.Parse(queries["groupID"]);
+				var client = new EbsClient();
+				var xml = client.GetDownReservXml(groupid);
+				var tasks = new List<Task>();
+				foreach (var single in xml.Files)
+					tasks.Add(client.DownloadFromReservFile(single, folder, true));
+				Console.WriteLine("다운로드를 시작합니다.");
+				Task.WaitAll(tasks.ToArray());
+				Console.WriteLine("다운로드가 종료되었습니다.");
+
+			} catch (Exception e)
+			{
+				Console.WriteLine("오류가 발생하였습니다.");
+				Console.WriteLine(e.Message);
+				Console.WriteLine(e.InnerException);
+			}
+			Console.ReadLine();
 		}
 	}
 }

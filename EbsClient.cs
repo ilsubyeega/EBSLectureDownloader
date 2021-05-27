@@ -53,7 +53,8 @@ namespace EBSLectureDownloader
 					Directory.CreateDirectory(combined);
 
 				// Download Subtitle
-				await client.DownloadFileTaskAsync(new Uri(file.CaptionUrl), Combine(folder, file.Folder, file.Name, file.CaptionUrl, addfolder));
+				if (subtitles && file.CaptionUrl != null)
+					await client.DownloadFileTaskAsync(new Uri(file.CaptionUrl), Combine(folder, file.Folder, file.Name, file.CaptionUrl, addfolder));
 
 				client.DownloadProgressChanged += (sender, arg) =>
 				{
